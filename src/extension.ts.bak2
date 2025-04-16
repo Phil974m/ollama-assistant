@@ -1,0 +1,94 @@
+import { 
+  ExtensionContext, 
+  commands, 
+  window, 
+  workspace, 
+  languages, 
+  StatusBarAlignment 
+} from 'vscode';
+import { OllamaService } from './ollamaService';
+import { OllamaCompletionProvider } from './inlineCompletionProvider';
+import { ChatPanel } from './chatPanel';
+
+export function activate(context: ExtensionContext) {
+  const ollama = new OllamaService();
+  const statusBar = window.createStatusBarItem(StatusBarAlignment.Right, 100);
+  
+  // Mise à jour de la barre d'état
+  const updateStatusBar = () => {
+    const model = workspace.getConfiguration('ollama').get<string>('defaultModel') || 'non configuré';
+    statusBar.text = `$(code) Ollama: ${model}`;
+    statusBar.tooltip = 'Cliquez pour changer de modèle';
+    statusBar.show();
+  };
+
+  // Configuration initiale
+  updateStatusBar();
+
+  // Enregistrement du fournisseur de complétion
+  const provider = new OllamaCompletionProvider(ollama);
+  context.subscriptions.push(
+    languages.registerInlineCompletionItemProvider({ pattern: '**' }, provider)
+  );
+
+  // Commandes
+  context.subscriptions.push(
+    commands.registerCommand('ollama.generateCode', async () => {
+      const prompt = await window.showInputBox({ 
+        prompt: 'Entrez votre demande de code',
+        placeHolder: 'Ex: Crée une fonction React pour un bouton cliquable'
+      });
+      
+      if (!prompt) return;
+
+      try {
+        const editor = window.activeTextEditor;
+        const model = workspace.getConfiguration('ollama').get<string>('defaultModel', 'codellama');
+        
+        if (editor) {
+          const code = await ollama.generateCompletion(
+            `Langage: ${editor.document.languageId}\nContexte: ${prompt}`,
+            model
+          );
+          
+          await editor.edit(editBuilder => {
+            editBuilder.insert(editor.selection.active, code);
+          });
+        }
+      } catch (error) {
+        window.showErrorMessage(`Erreur Ollama: ${error instanceof Error ? error.message : error}`);
+      }
+    }),
+
+    commands.registerCommand('ollama.openChat', () => {
+      new ChatPanel(ollama);
+    }),
+
+    commands.registerCommand('ollama.changeModel', async () => {
+      const models = await ollama.listModels();
+      const selected = await window.showQuickPick(models, {
+        placeHolder: 'Sélectionnez un modèle Ollama'
+      });
+      
+      if (selected) {
+        await workspace.getConfiguration('ollama').update('defaultModel', selected, true);
+        window.showInformationMessage(`Modèle Ollama changé pour: ${selected}`);
+      }
+    })
+  );
+
+  // Gestion des changements de configuration
+  context.subscriptions.push(
+    workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration('ollama')) {
+        updateStatusBar();
+      }
+    })
+  );
+
+  // Ajout de la commande à la barre d'état
+  statusBar.command = 'ollama.changeModel';
+  context.subscriptions.push(statusBar);
+}
+
+export function deactivate() {}

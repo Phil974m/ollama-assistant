@@ -1,0 +1,59 @@
+{
+  "name": "ollama-assistant",
+  "displayName": "Ollama Assistant",
+  "version": "0.0.1",
+  "description": "Ollama integration for VS Code",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onCommand:ollama.generateCode",
+    "onCommand:ollama.openChat"
+  ],
+  "main": "./out/dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ollama.generateCode",
+        "title": "Generate Code with Ollama"
+      },
+      {
+        "command": "ollama.openChat",
+        "title": "Open Ollama Chat"
+      }
+    ],
+    "configuration": {
+      "title": "Ollama",
+      "properties": {
+        "ollama.endpoint": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Ollama API endpoint"
+        },
+        "ollama.defaultModel": {
+          "type": "string",
+          "default": "codellama",
+          "description": "Default model to use"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "@types/vscode": "^1.85.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Phil974m/ollama-assistant.git"
+  },
+  "license": "MIT"
+}

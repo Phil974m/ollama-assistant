@@ -1,0 +1,26 @@
+import { workspace } from 'vscode';
+//import { InlineCompletionItem, InlineCompletionItemProvider, TextDocument, Position, CancellationToken, Range } from 'vscode';
+//import { OllamaService } from './ollamaService';
+import { InlineCompletionItem, InlineCompletionItemProvider, TextDocument, Position, CancellationToken, Range, workspace } from 'vscode';
+import { OllamaService } from './ollamaService';
+
+export class OllamaCompletionProvider implements InlineCompletionItemProvider {
+  constructor(private ollama: OllamaService) {}
+
+  async provideInlineCompletionItems(document: TextDocument, position: Position) {
+    const textBeforeCursor = document.getText(
+      new Range(new Position(0, 0), position)
+    );
+
+    try {
+      const completion = await this.ollama.generateCompletion(
+        `Complete this code:\n\n${textBeforeCursor}`,
+        workspace.getConfiguration('ollama').get('defaultModel')
+      );
+
+      return [new InlineCompletionItem(completion)];
+    } catch (error) {
+      return [];
+    }
+  }
+}

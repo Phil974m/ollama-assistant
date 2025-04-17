@@ -1,7 +1,5 @@
 # Ollama Assistant for VS Code
 
-![Banner](https://user-images.githubusercontent.com/.../banner.png) *(optional: add image if available)*
-
 VS Code extension that integrates local Ollama models for Copilot-like development assistance, with total control over your data.
 
 ## ✨ Features
@@ -30,10 +28,10 @@ Search for "Ollama Assistant"
 
 Manually:
         
-$ npm install
-$ npm run compile
-$ vsce package
-$ code --install-extension ollama-assistant-0. 0.1.vsix
+ npm install
+ npm run compile
+ vsce package
+ code --install-extension ollama-assistant-0. 0.1.vsix
 
 ⚙️ Configuration
 
@@ -63,10 +61,10 @@ Displays the active template
 
 Contributions welcome! Here's how to set up the environment:
 
- $ git clone https://github.com/Phil974/ollama-assistant.git
- $ cd ollama-assistant
- $ npm install
- $ npm run watch # Real-time compilation
+  git clone https://github.com/Phil974/ollama-assistant.git
+  cd ollama-assistant
+  npm install
+  npm run watch # Real-time compilation
 
 📜 License
 
